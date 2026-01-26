@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Accord.Video.FFMPEG;
+using CenteredMessagebox;
 
 namespace myTimelapseMovieMaker
 {
@@ -14,182 +15,13 @@ namespace myTimelapseMovieMaker
     {
         public Form1()
         {
-            //Text = "Timelapse Movie Maker";
-            //Width = 1100;
-            //Height = 650;
-            //StartPosition = FormStartPosition.CenterScreen;
-
-           // InitializeControls();
-            InitializeComponent();
+           InitializeComponent();
         }
-        // UI controls
-       // private Button btnChooseFolder;
-        //private Button btn_Start;
-        //private Button btn_Abort;
-        //private Button btn_MoveUp;
-        //private Button btn_MoveDown;
-        //private Button btn_Remove;
-        //private Label lbl_Folder;
-        //private Label lbl_Fps;
-        //private NumericUpDown numUpDn_Fps;
-       // private ListBox lst_Images;
-       // private PictureBox picbx_Preview;
-       // private ProgressBar progressBar;
-       // private Label lbl_Status;
-       // private SaveFileDialog saveFileDialog;
-
+       
         // State
         private string currentFolder = string.Empty;
         private CancellationTokenSource cts;
         private bool isRendering = false;
-
-        
-        //private void InitializeControls()
-        //{
-            //// Folder label
-            //lbl_Folder = new Label
-            //{
-            //    Text = "Folder: (none selected)",
-            //    AutoSize = true,
-            //    Location = new Point(10, 10)
-            //};
-
-            //// Choose folder button
-            //btnChooseFolder = new Button
-            //{
-            //    Text = "Choose Folder...",
-            //    Location = new Point(10, 35),
-            //    Width = 130
-            //};
-            //btnChooseFolder.Click += BtnChooseFolder_Click;
-
-            // FPS label
-            //lbl_Fps = new Label
-            //{
-            //    Text = "Frame rate (fps):",
-            //    AutoSize = true,
-            //    Location = new Point(160, 40)
-            //};
-
-            // FPS numeric
-            //numUpDn_Fps = new NumericUpDown
-            //{
-            //    Location = new Point(270, 35),
-            //    Minimum = 1,
-            //    Maximum = 120,
-            //    Value = 25,
-            //    Width = 60
-            //};
-
-            // Start button
-            //btn_Start = new Button
-            //{
-            //    Text = "Start",
-            //    Location = new Point(350, 35),
-            //    Width = 80
-            //};
-            //btn_Start.Click += BtnStart_Click;
-
-            // Abort button
-            //btn_Abort = new Button
-            //{
-            //    Text = "Abort",
-            //    Location = new Point(440, 35),
-            //    Width = 80,
-            //    Enabled = false
-            //};
-            //btn_Abort.Click += BtnAbort_Click;
-
-            // List of images
-            //lst_Images = new ListBox
-            //{
-            //    Location = new Point(10, 80),
-            //    Width = 500,
-            //    Height = 400
-            //};
-            //lst_Images.SelectedIndexChanged += LstImages_SelectedIndexChanged;
-
-            // Move up button
-            //btn_MoveUp = new Button
-            //{
-            //    Text = "Move Up",
-            //    Location = new Point(520, 80),
-            //    Width = 100
-            //};
-            //btn_MoveUp.Click += btn_MoveUp_Click;
-
-            // Move down button
-            //btn_MoveDown = new Button
-            //{
-            //    Text = "Move Down",
-            //    Location = new Point(520, 115),
-            //    Width = 100
-            //};
-            //btn_MoveDown.Click += btn_MoveDown_Click;
-
-            // Remove button
-            //btn_Remove = new Button
-            //{
-            //    Text = "Remove",
-            //    Location = new Point(520, 150),
-            //    Width = 100
-            //};
-            //btn_Remove.Click += btn_Remove_Click;
-
-            // Picture preview
-            //picbx_Preview = new PictureBox
-            //{
-            //    Location = new Point(640, 80),
-            //    Width = 420,
-            //    Height = 400,
-            //    BorderStyle = BorderStyle.FixedSingle,
-            //    SizeMode = PictureBoxSizeMode.Zoom
-            //};
-
-            // Progress bar
-            //progressBar = new ProgressBar
-            //{
-            //    Location = new Point(10, 500),
-            //    Width = 1050,
-            //    Height = 25,
-            //    Minimum = 0,
-            //    Maximum = 100
-            //};
-
-            // Status label
-            //lbl_Status = new Label
-            //{
-            //    Text = "Status: Idle",
-            //    AutoSize = true,
-            //    Location = new Point(10, 535)
-            //};
-
-            // Save file dialog
-            //saveFileDialog = new SaveFileDialog
-            //{
-            //    Filter = "MP4 Video|*.mp4",
-            //    Title = "Save Timelapse Video"
-            //};
-
-            //Controls.Add(lbl_Folder);
-            //Controls.Add(btnChooseFolder);
-            //Controls.Add(lbl_Fps);
-            //Controls.Add(numUpDn_Fps);
-            //Controls.Add(btn_Start);
-            //Controls.Add(btn_Abort);
-            //Controls.Add(lst_Images);
-            //Controls.Add(btn_MoveUp);
-            //Controls.Add(btn_MoveDown);
-            //Controls.Add(btn_Remove);
-            //Controls.Add(picbx_Preview);
-           // Controls.Add(progressBar);
-           // Controls.Add(lbl_Status);
-       // }
-
-        //private void BtnChooseFolder_Click(object sender, EventArgs e)
-        //{
-           
-        //}
 
         private void LoadImagesFromFolder(string folder)
         {
@@ -260,11 +92,6 @@ namespace myTimelapseMovieMaker
                 return int.MaxValue;
             }
         }
-
-        //private void LstImages_SelectedIndexChanged(object sender, EventArgs e)
-        //{
-           
-        //}
 
         private void btn_MoveUp_Click(object sender, EventArgs e)
         {
@@ -428,7 +255,7 @@ namespace myTimelapseMovieMaker
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
                     currentFolder = fbd.SelectedPath;
-                    lbl_Folder.Text = "Folder: " + currentFolder;
+                    lbl_Folder.Text = currentFolder;
                     LoadImagesFromFolder(currentFolder);
                 }
             }
@@ -504,6 +331,9 @@ namespace myTimelapseMovieMaker
             var imagePaths = lst_Images.Items.Cast<string>().ToList();
             int fps = (int)numUpDn_Fps.Value;
 
+
+
+
             try
             {
                 await Task.Run(() => RenderVideo(imagePaths, outputPath, fps, token), token);
@@ -524,6 +354,9 @@ namespace myTimelapseMovieMaker
                     }
                 }
             }
+           
+            
+            
             catch (OperationCanceledException)
             {
                 lbl_Status.Text = "Status: Aborted.";
@@ -607,6 +440,13 @@ namespace myTimelapseMovieMaker
             lbl_Folder.Text = "";
             lbl_Status.Text = "";
             picbx_Preview.Image = null;
+        }
+
+        private void btn_rename_files_Click(object sender, EventArgs e)
+        {
+            if (!RenameFactory(lbl_Folder.Text, txtWildcard.Text, txtNewNameFormat.Text, true))
+                MsgBox.Show("Unable to rename files", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
         }
     }
 

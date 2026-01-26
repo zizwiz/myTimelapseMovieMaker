@@ -45,6 +45,15 @@ namespace myTimelapseMovieMaker
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.btn_close = new System.Windows.Forms.Button();
             this.btn_reset = new System.Windows.Forms.Button();
+            this.btn_rename_files = new System.Windows.Forms.Button();
+            this.txtbx_rename_counter = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtWildcard = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtNewNameFormat = new System.Windows.Forms.TextBox();
+            this.lbl_renamed_file_path = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).BeginInit();
             this.SuspendLayout();
@@ -171,7 +180,7 @@ namespace myTimelapseMovieMaker
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(26, 480);
+            this.progressBar.Location = new System.Drawing.Point(26, 532);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(1050, 25);
             this.progressBar.TabIndex = 11;
@@ -210,11 +219,98 @@ namespace myTimelapseMovieMaker
             this.btn_reset.UseVisualStyleBackColor = true;
             this.btn_reset.Click += new System.EventHandler(this.btn_reset_Click);
             // 
+            // btn_rename_files
+            // 
+            this.btn_rename_files.Location = new System.Drawing.Point(44, 450);
+            this.btn_rename_files.Name = "btn_rename_files";
+            this.btn_rename_files.Size = new System.Drawing.Size(114, 30);
+            this.btn_rename_files.TabIndex = 15;
+            this.btn_rename_files.Text = "Rename files";
+            this.btn_rename_files.UseVisualStyleBackColor = true;
+            this.btn_rename_files.Click += new System.EventHandler(this.btn_rename_files_Click);
+            // 
+            // txtbx_rename_counter
+            // 
+            this.txtbx_rename_counter.Location = new System.Drawing.Point(342, 452);
+            this.txtbx_rename_counter.Name = "txtbx_rename_counter";
+            this.txtbx_rename_counter.Size = new System.Drawing.Size(86, 26);
+            this.txtbx_rename_counter.TabIndex = 16;
+            this.txtbx_rename_counter.Text = "1";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(182, 455);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(154, 20);
+            this.label12.TabIndex = 17;
+            this.label12.Text = "Counter Start Value:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(434, 455);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(159, 20);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "File Type to Rename:";
+            // 
+            // txtWildcard
+            // 
+            this.txtWildcard.Location = new System.Drawing.Point(599, 452);
+            this.txtWildcard.Name = "txtWildcard";
+            this.txtWildcard.Size = new System.Drawing.Size(76, 26);
+            this.txtWildcard.TabIndex = 19;
+            this.txtWildcard.Text = "*.jpg";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(681, 455);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(145, 20);
+            this.label4.TabIndex = 20;
+            this.label4.Text = "New Name Format:";
+            // 
+            // txtNewNameFormat
+            // 
+            this.txtNewNameFormat.Location = new System.Drawing.Point(832, 452);
+            this.txtNewNameFormat.Name = "txtNewNameFormat";
+            this.txtNewNameFormat.Size = new System.Drawing.Size(132, 26);
+            this.txtNewNameFormat.TabIndex = 21;
+            // 
+            // lbl_renamed_file_path
+            // 
+            this.lbl_renamed_file_path.AutoSize = true;
+            this.lbl_renamed_file_path.Location = new System.Drawing.Point(337, 491);
+            this.lbl_renamed_file_path.Name = "lbl_renamed_file_path";
+            this.lbl_renamed_file_path.Size = new System.Drawing.Size(29, 20);
+            this.lbl_renamed_file_path.TabIndex = 22;
+            this.lbl_renamed_file_path.Text = ".....";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(182, 491);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(149, 20);
+            this.label6.TabIndex = 23;
+            this.label6.Text = "Renamed File Path:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1099, 676);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.lbl_renamed_file_path);
+            this.Controls.Add(this.txtNewNameFormat);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.txtWildcard);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.txtbx_rename_counter);
+            this.Controls.Add(this.btn_rename_files);
             this.Controls.Add(this.btn_reset);
             this.Controls.Add(this.btn_close);
             this.Controls.Add(this.lbl_Status);
@@ -258,6 +354,15 @@ namespace myTimelapseMovieMaker
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.Button btn_close;
         private System.Windows.Forms.Button btn_reset;
+        private System.Windows.Forms.Button btn_rename_files;
+        private System.Windows.Forms.TextBox txtbx_rename_counter;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox txtWildcard;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtNewNameFormat;
+        private System.Windows.Forms.Label lbl_renamed_file_path;
+        private System.Windows.Forms.Label label6;
     }
 }
 
