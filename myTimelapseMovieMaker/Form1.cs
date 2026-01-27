@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Accord.Video.FFMPEG;
 using CenteredMessagebox;
 
 namespace myTimelapseMovieMaker
@@ -15,13 +16,14 @@ namespace myTimelapseMovieMaker
     {
         public Form1()
         {
-           InitializeComponent();
+            InitializeComponent();
         }
-       
+
         // State
         private string currentFolder = string.Empty;
         private CancellationTokenSource cts;
         private bool isRendering = false;
+        private Process ffmpegProcess;
 
         private void LoadImagesFromFolder(string folder)
         {
@@ -138,106 +140,18 @@ namespace myTimelapseMovieMaker
             }
         }
 
-       private void RenderVideo(List<string> imagePaths, string outputPath, int fps, CancellationToken token)
-        {
-            if (imagePaths == null || imagePaths.Count == 0)
-                throw new InvalidOperationException("No images to render.");
-
-            // Determine video size from first image
-            int width, height;
-            using (var firstImg = Image.FromFile(imagePaths[0]))
-            {
-                width = firstImg.Width;
-                height = firstImg.Height;
-            }
-
-            // Create writer
-            using (var writer = new VideoFileWriter())
-            {
-                // Choose a codec and bitrate.
-                // MPEG4 is widely supported; bitrate controls size/quality.
-                // You can tweak bitrate for smaller files.
-                int bitrate = 4000000; // ~4 Mbps, adjust as needed
-
-                
-
-                writer.Open(
-                    outputPath,
-                    width,
-                    height,
-                    fps,
-                    VideoCodec.MPEG4,
-                    bitrate);
-
-                if (!writer.IsOpen)
-                    throw new Exception("Failed to open video writer.");
-
-                int total = imagePaths.Count;
-                for (int i = 0; i < total; i++)
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    string path = imagePaths[i];
-                    if (!File.Exists(path))
-                        continue; // Skip missing files
-
-                    try
-                    {
-                        using (var img = (Bitmap)Image.FromFile(path))
-                        {
-                            // If image size differs, resize to match video size
-                            Bitmap frame;
-                            if (img.Width != width || img.Height != height)
-                            {
-                                frame = new Bitmap(width, height);
-                                using (var g = Graphics.FromImage(frame))
-                                {
-                                    g.DrawImage(img, 0, 0, width, height);
-                                }
-                            }
-                            else
-                            {
-                                frame = new Bitmap(img);
-                            }
-
-                            writer.WriteVideoFrame(frame);
-                            frame.Dispose();
-                        }
-                    }
-                    catch
-                    {
-                        // Skip problematic image but continue
-                    }
-
-                    // Update progress on UI thread
-                    int progress = (int)((i + 1) * 100.0 / total);
-                    UpdateProgress(progress, $"Status: Rendering... ({i + 1}/{total})");
-                }
-
-                writer.Close();
-            }
-        }
 
         private void UpdateProgress(int value, string statusText)
         {
             if (InvokeRequired)
             {
-                try
-                {
-                    Invoke(new Action<int, string>(UpdateProgress), value, statusText);
-                }
-                catch
-                {
-                    // Form might be closing; ignore
-                }
+                Invoke(new Action<int, string>(UpdateProgress), value, statusText);
                 return;
             }
 
-            if (value < progressBar.Minimum) value = progressBar.Minimum;
-            if (value > progressBar.Maximum) value = progressBar.Maximum;
-
-            progressBar.Value = value;
+            progressBar.Value = Math.Min(100, Math.Max(0, value));
             lbl_Status.Text = statusText;
+
         }
 
         private void btn_ChooseFolder_Click(object sender, EventArgs e)
@@ -263,57 +177,24 @@ namespace myTimelapseMovieMaker
 
         private void btn_Abort_Click(object sender, EventArgs e)
         {
-            if (!isRendering || cts == null)
-                return;
+            try
+            {
+                cts?.Cancel();
+                ffmpegProcess?.Kill();
+            }
+            catch { }
 
-            // Signal cancellation
-            cts.Cancel();
-            lbl_Status.Text = "Status: Aborting...";
+            lbl_Status.Text = "Aborting...";
             btn_Abort.Enabled = false;
         }
 
         private async void btn_Start_Click(object sender, EventArgs e)
         {
-            if (isRendering)
-            {
-                MessageBox.Show("Rendering is already in progress.", "Busy",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            var images = lst_Images.Items.Cast<string>().ToArray();
+            string ffmpegPath = Path.Combine(Application.StartupPath, "ffmpeg", "ffmpeg.exe");
+            string outputPath = @"F:\snapshots\ffmpeg_timelapse.mp4";
+            int fps = (int)numUpDn_Fps.Value;
 
-            if (lst_Images.Items.Count == 0)
-            {
-                MessageBox.Show("No images to process.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (numUpDn_Fps.Value <= 0)
-            {
-                MessageBox.Show("Frame rate must be greater than zero.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            // Ask where to save the video
-            if (saveFileDialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            string outputPath = saveFileDialog.FileName;
-            if (string.IsNullOrWhiteSpace(outputPath))
-                return;
-
-            // Confirm overwrite
-            if (File.Exists(outputPath))
-            {
-                var result = MessageBox.Show("File already exists. Overwrite?", "Confirm",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                if (result != DialogResult.Yes)
-                    return;
-            }
-
-            // Prepare for rendering
-            isRendering = true;
             btn_Start.Enabled = false;
             btn_Abort.Enabled = true;
             btn_ChooseFolder.Enabled = false;
@@ -321,63 +202,33 @@ namespace myTimelapseMovieMaker
             btn_MoveDown.Enabled = false;
             btn_Remove.Enabled = false;
             numUpDn_Fps.Enabled = false;
+            btn_reset.Enabled = false;
             progressBar.Value = 0;
-            lbl_Status.Text = "Status: Preparing...";
+            lbl_Status.Text = "Starting...";
 
             cts = new CancellationTokenSource();
-            var token = cts.Token;
-
-            // Copy list of images to avoid UI thread issues
-            var imagePaths = lst_Images.Items.Cast<string>().ToList();
-            int fps = (int)numUpDn_Fps.Value;
-
-
-
 
             try
             {
-                await Task.Run(() => RenderVideo(imagePaths, outputPath, fps, token), token);
+                TimeSpan totalDuration = TimeSpan.FromSeconds(images.Length / (double)fps);
 
-                if (!token.IsCancellationRequested)
-                {
-                    lbl_Status.Text = "Status: Completed successfully.";
-                    MessageBox.Show("Video created successfully.", "Done",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    lbl_Status.Text = "Status: Aborted.";
-                    if (File.Exists(outputPath))
-                    {
-                        // Optionally delete incomplete file
-                        try { File.Delete(outputPath); } catch { /* ignore */ }
-                    }
-                }
+                lbl_movie_time.Text = "Movie duration = " + totalDuration.Hours + "h " + totalDuration.Minutes + "m " +
+                                      totalDuration.Seconds + "s";
+
+                await Task.Run(() => RunFFmpeg(images, fps, ffmpegPath, outputPath, cts.Token, rchtxbx_output, progressBar));
+                lbl_Status.Text = "Completed";
             }
-           
-            
-            
             catch (OperationCanceledException)
             {
-                lbl_Status.Text = "Status: Aborted.";
-                if (File.Exists(outputPath))
-                {
-                    try { File.Delete(outputPath); } catch { /* ignore */ }
-                }
+                lbl_Status.Text = "Aborted";
             }
             catch (Exception ex)
             {
-                lbl_Status.Text = "Status: Error.";
-                MessageBox.Show("Error while creating video: " + ex.Message, "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                if (File.Exists(outputPath))
-                {
-                    try { File.Delete(outputPath); } catch { /* ignore */ }
-                }
+                lbl_Status.Text = "Error";
+                MessageBox.Show(ex.Message);
             }
             finally
             {
-                isRendering = false;
                 btn_Start.Enabled = true;
                 btn_Abort.Enabled = false;
                 btn_ChooseFolder.Enabled = true;
@@ -385,6 +236,7 @@ namespace myTimelapseMovieMaker
                 btn_MoveDown.Enabled = true;
                 btn_Remove.Enabled = true;
                 numUpDn_Fps.Enabled = true;
+                btn_reset.Enabled = true;
                 cts.Dispose();
                 cts = null;
             }
@@ -448,6 +300,98 @@ namespace myTimelapseMovieMaker
                 MsgBox.Show("Unable to rename files", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         }
+
+        private void RunFFmpeg(
+            string[] images,
+            int fps,
+            string ffmpegPath,
+            string outputPath,
+            CancellationToken token,
+            RichTextBox myRichTextBox,
+            ProgressBar myProgressBar
+            )
+        {
+            token.ThrowIfCancellationRequested();
+
+            string line;
+            int fileCount = images.Length + 1;
+            int counter = 1;
+            
+            myProgressBar.Invoke(new Action(() =>
+            {
+                myProgressBar.Value = 0;
+                myProgressBar.Maximum = fileCount;
+            }));
+
+
+            string args = "-y -f image2pipe -r " + fps +
+                          " -i pipe:0 -c:v libx265 -preset slow -crf -1 -pix_fmt yuv420p " + outputPath;
+
+            var process = new Process
+            {
+                StartInfo =
+                {
+                    FileName = ffmpegPath,
+                    Arguments = args,
+                    RedirectStandardInput = true,  // Redirect standard input
+                    RedirectStandardOutput = true, // Redirect standard output
+                    RedirectStandardError = true,  // Redirect standard error
+                    UseShellExecute = false,       // Required for redirection
+                    CreateNoWindow = true          // Optional: Run without creating a window
+                }
+            };
+
+            process.Start();
+
+            Stream ffmpegInput = process.StandardInput.BaseStream;
+
+            // Write images to FFmpeg's standard input
+            // using (var ffmpegInput = process.StandardInput.BaseStream)
+            using (ffmpegInput)
+            {
+                foreach (string imageFile in images)
+                {
+                    counter++;
+
+                    using (var bitmap = new Bitmap(imageFile))
+                    {
+                        bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
+                    }
+
+                    //invoke to prevent cross threading
+                    myRichTextBox.Invoke(new Action(() =>
+                    {
+                        myRichTextBox.AppendText("Adding:" + imageFile + "\r");
+                        myRichTextBox.ScrollToCaret();
+                    }));
+
+                    myProgressBar.Invoke(new Action(() =>
+                    {
+                        myProgressBar.Value = counter;
+                    }));
+                }
+            }
+
+            //Close the process
+            process.Close();
+
+            token.ThrowIfCancellationRequested();
+        }
+
+        private string ExtractTime(string line)
+        {
+            int idx = line.IndexOf("time=");
+            if (idx < 0) return "00:00:00";
+
+            string part = line.Substring(idx + 5);
+            int space = part.IndexOf(' ');
+            if (space > 0)
+                part = part.Substring(0, space);
+
+            return part.Trim();
+        }
+
+
     }
 
 }

@@ -54,6 +54,8 @@ namespace myTimelapseMovieMaker
             this.txtNewNameFormat = new System.Windows.Forms.TextBox();
             this.lbl_renamed_file_path = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.rchtxbx_output = new System.Windows.Forms.RichTextBox();
+            this.lbl_movie_time = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).BeginInit();
             this.SuspendLayout();
@@ -171,9 +173,9 @@ namespace myTimelapseMovieMaker
             // picbx_Preview
             // 
             this.picbx_Preview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picbx_Preview.Location = new System.Drawing.Point(642, 87);
+            this.picbx_Preview.Location = new System.Drawing.Point(630, 87);
             this.picbx_Preview.Name = "picbx_Preview";
-            this.picbx_Preview.Size = new System.Drawing.Size(423, 332);
+            this.picbx_Preview.Size = new System.Drawing.Size(435, 251);
             this.picbx_Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picbx_Preview.TabIndex = 10;
             this.picbx_Preview.TabStop = false;
@@ -188,7 +190,7 @@ namespace myTimelapseMovieMaker
             // lbl_Status
             // 
             this.lbl_Status.AutoSize = true;
-            this.lbl_Status.Location = new System.Drawing.Point(72, 571);
+            this.lbl_Status.Location = new System.Drawing.Point(12, 569);
             this.lbl_Status.Name = "lbl_Status";
             this.lbl_Status.Size = new System.Drawing.Size(56, 20);
             this.lbl_Status.TabIndex = 12;
@@ -297,11 +299,30 @@ namespace myTimelapseMovieMaker
             this.label6.TabIndex = 23;
             this.label6.Text = "Renamed File Path:";
             // 
+            // rchtxbx_output
+            // 
+            this.rchtxbx_output.Location = new System.Drawing.Point(257, 566);
+            this.rchtxbx_output.Name = "rchtxbx_output";
+            this.rchtxbx_output.Size = new System.Drawing.Size(642, 98);
+            this.rchtxbx_output.TabIndex = 24;
+            this.rchtxbx_output.Text = "";
+            // 
+            // lbl_movie_time
+            // 
+            this.lbl_movie_time.AutoSize = true;
+            this.lbl_movie_time.Location = new System.Drawing.Point(12, 631);
+            this.lbl_movie_time.Name = "lbl_movie_time";
+            this.lbl_movie_time.Size = new System.Drawing.Size(84, 20);
+            this.lbl_movie_time.TabIndex = 25;
+            this.lbl_movie_time.Text = "Movie time";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1099, 676);
+            this.Controls.Add(this.lbl_movie_time);
+            this.Controls.Add(this.rchtxbx_output);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.lbl_renamed_file_path);
             this.Controls.Add(this.txtNewNameFormat);
@@ -363,6 +384,8 @@ namespace myTimelapseMovieMaker
         private System.Windows.Forms.TextBox txtNewNameFormat;
         private System.Windows.Forms.Label lbl_renamed_file_path;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.RichTextBox rchtxbx_output;
+        private System.Windows.Forms.Label lbl_movie_time;
     }
 }
 
