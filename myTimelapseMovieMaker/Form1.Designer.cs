@@ -56,8 +56,15 @@ namespace myTimelapseMovieMaker
             this.label6 = new System.Windows.Forms.Label();
             this.rchtxbx_output = new System.Windows.Forms.RichTextBox();
             this.lbl_movie_time = new System.Windows.Forms.Label();
+            this.lbl_codec = new System.Windows.Forms.Label();
+            this.cmbobx_codec = new System.Windows.Forms.ComboBox();
+            this.cmbobx_encoding_speed = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.trkbr_Quality = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trkbr_Quality)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_ChooseFolder
@@ -316,11 +323,77 @@ namespace myTimelapseMovieMaker
             this.lbl_movie_time.TabIndex = 25;
             this.lbl_movie_time.Text = "Movie time";
             // 
+            // lbl_codec
+            // 
+            this.lbl_codec.AutoSize = true;
+            this.lbl_codec.Location = new System.Drawing.Point(458, 355);
+            this.lbl_codec.Name = "lbl_codec";
+            this.lbl_codec.Size = new System.Drawing.Size(55, 20);
+            this.lbl_codec.TabIndex = 26;
+            this.lbl_codec.Text = "Codec";
+            // 
+            // cmbobx_codec
+            // 
+            this.cmbobx_codec.FormattingEnabled = true;
+            this.cmbobx_codec.Items.AddRange(new object[] {
+            "libx264",
+            "libx265"});
+            this.cmbobx_codec.Location = new System.Drawing.Point(519, 352);
+            this.cmbobx_codec.Name = "cmbobx_codec";
+            this.cmbobx_codec.Size = new System.Drawing.Size(121, 28);
+            this.cmbobx_codec.TabIndex = 27;
+            // 
+            // cmbobx_encoding_speed
+            // 
+            this.cmbobx_encoding_speed.FormattingEnabled = true;
+            this.cmbobx_encoding_speed.Items.AddRange(new object[] {
+            "slow",
+            "medium",
+            "fast"});
+            this.cmbobx_encoding_speed.Location = new System.Drawing.Point(776, 352);
+            this.cmbobx_encoding_speed.Name = "cmbobx_encoding_speed";
+            this.cmbobx_encoding_speed.Size = new System.Drawing.Size(121, 28);
+            this.cmbobx_encoding_speed.TabIndex = 29;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(646, 355);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(124, 20);
+            this.label1.TabIndex = 28;
+            this.label1.Text = "Encoding speed";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(458, 400);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(57, 20);
+            this.label2.TabIndex = 30;
+            this.label2.Text = "Quality";
+            // 
+            // trkbr_Quality
+            // 
+            this.trkbr_Quality.Location = new System.Drawing.Point(521, 386);
+            this.trkbr_Quality.Maximum = 51;
+            this.trkbr_Quality.Minimum = -1;
+            this.trkbr_Quality.Name = "trkbr_Quality";
+            this.trkbr_Quality.Size = new System.Drawing.Size(538, 69);
+            this.trkbr_Quality.TabIndex = 31;
+            this.trkbr_Quality.Value = -1;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1099, 676);
+            this.Controls.Add(this.trkbr_Quality);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.cmbobx_encoding_speed);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.cmbobx_codec);
+            this.Controls.Add(this.lbl_codec);
             this.Controls.Add(this.lbl_movie_time);
             this.Controls.Add(this.rchtxbx_output);
             this.Controls.Add(this.label6);
@@ -350,8 +423,10 @@ namespace myTimelapseMovieMaker
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Timelapse Movie Maker";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trkbr_Quality)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -386,6 +461,12 @@ namespace myTimelapseMovieMaker
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.RichTextBox rchtxbx_output;
         private System.Windows.Forms.Label lbl_movie_time;
+        private System.Windows.Forms.Label lbl_codec;
+        private System.Windows.Forms.ComboBox cmbobx_codec;
+        private System.Windows.Forms.ComboBox cmbobx_encoding_speed;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TrackBar trkbr_Quality;
     }
 }
 

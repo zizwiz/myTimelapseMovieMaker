@@ -23,7 +23,7 @@ namespace myTimelapseMovieMaker
         private string currentFolder = string.Empty;
         private CancellationTokenSource cts;
         private bool isRendering = false;
-        private Process ffmpegProcess;
+        //private Process ffmpegProcess;
 
         private void LoadImagesFromFolder(string folder)
         {
@@ -177,12 +177,10 @@ namespace myTimelapseMovieMaker
 
         private void btn_Abort_Click(object sender, EventArgs e)
         {
-            try
+            if (cts != null)
             {
-                cts?.Cancel();
-                ffmpegProcess?.Kill();
+                cts.Cancel();
             }
-            catch { }
 
             lbl_Status.Text = "Aborting...";
             btn_Abort.Enabled = false;
@@ -194,6 +192,9 @@ namespace myTimelapseMovieMaker
             string ffmpegPath = Path.Combine(Application.StartupPath, "ffmpeg", "ffmpeg.exe");
             string outputPath = @"F:\snapshots\ffmpeg_timelapse.mp4";
             int fps = (int)numUpDn_Fps.Value;
+            string Codec = cmbobx_codec.Text;
+            string EncodingSpeed = cmbobx_encoding_speed.Text;
+            int Quality = trkbr_Quality.Value;
 
             btn_Start.Enabled = false;
             btn_Abort.Enabled = true;
@@ -215,7 +216,8 @@ namespace myTimelapseMovieMaker
                 lbl_movie_time.Text = "Movie duration = " + totalDuration.Hours + "h " + totalDuration.Minutes + "m " +
                                       totalDuration.Seconds + "s";
 
-                await Task.Run(() => RunFFmpeg(images, fps, ffmpegPath, outputPath, cts.Token, rchtxbx_output, progressBar));
+                await Task.Run(() => RunFFmpeg(images, fps, ffmpegPath, outputPath, cts.Token, rchtxbx_output, 
+                    progressBar, Codec, EncodingSpeed, Quality));
                 lbl_Status.Text = "Completed";
             }
             catch (OperationCanceledException)
@@ -303,29 +305,32 @@ namespace myTimelapseMovieMaker
 
         private void RunFFmpeg(
             string[] images,
-            int fps,
+            int myFPS,
             string ffmpegPath,
             string outputPath,
             CancellationToken token,
             RichTextBox myRichTextBox,
-            ProgressBar myProgressBar
-            )
+            ProgressBar myProgressBar, 
+            string myCodec,
+            string myEncodingSpeed,
+            int myQuality
+        )
         {
             token.ThrowIfCancellationRequested();
 
-            string line;
+            
             int fileCount = images.Length + 1;
             int counter = 1;
-            
+
             myProgressBar.Invoke(new Action(() =>
             {
                 myProgressBar.Value = 0;
                 myProgressBar.Maximum = fileCount;
             }));
 
-
-            string args = "-y -f image2pipe -r " + fps +
-                          " -i pipe:0 -c:v libx265 -preset slow -crf -1 -pix_fmt yuv420p " + outputPath;
+           
+            string args = "-y -f image2pipe -r " + myFPS +
+                          " -i pipe:0 -c:v " + myCodec + " -preset " + myEncodingSpeed + " -crf " + myQuality +" -pix_fmt yuv420p " + outputPath;
 
             var process = new Process
             {
@@ -347,35 +352,36 @@ namespace myTimelapseMovieMaker
 
             // Write images to FFmpeg's standard input
             // using (var ffmpegInput = process.StandardInput.BaseStream)
+
             using (ffmpegInput)
             {
                 foreach (string imageFile in images)
                 {
-                    counter++;
-
-                    using (var bitmap = new Bitmap(imageFile))
+                    while (!token.IsCancellationRequested) // do unless aborted
                     {
-                        bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
+                        counter++;
+
+                        using (var bitmap = new Bitmap(imageFile))
+                        {
+                            bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
+                        }
+
+                        //invoke to prevent cross threading
+                        myRichTextBox.Invoke(new Action(() =>
+                        {
+                            myRichTextBox.AppendText("Adding:" + imageFile + "\r");
+                            myRichTextBox.ScrollToCaret();
+                        }));
+
+                        myProgressBar.Invoke(new Action(() => { myProgressBar.Value = counter; }));
                     }
-
-                    //invoke to prevent cross threading
-                    myRichTextBox.Invoke(new Action(() =>
-                    {
-                        myRichTextBox.AppendText("Adding:" + imageFile + "\r");
-                        myRichTextBox.ScrollToCaret();
-                    }));
-
-                    myProgressBar.Invoke(new Action(() =>
-                    {
-                        myProgressBar.Value = counter;
-                    }));
                 }
             }
 
             //Close the process
             process.Close();
 
-            token.ThrowIfCancellationRequested();
+          //  token.ThrowIfCancellationRequested();
         }
 
         private string ExtractTime(string line)
@@ -391,7 +397,11 @@ namespace myTimelapseMovieMaker
             return part.Trim();
         }
 
-
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            cmbobx_codec.SelectedIndex = 1;
+            cmbobx_encoding_speed.SelectedIndex = 2;
+        }
     }
 
 }
