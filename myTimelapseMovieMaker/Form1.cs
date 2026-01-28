@@ -350,119 +350,9 @@ namespace myTimelapseMovieMaker
 
         }
 
-        //private void RunFFmpeg(
-        //    string[] images,
-        //    int myFPS,
-        //    string ffmpegPath,
-        //    string outputPath,
-        //    CancellationToken token,
-        //    RichTextBox myRichTextBox,
-        //    ProgressBar myProgressBar, 
-        //    string myCodec,
-        //    string myEncodingSpeed,
-        //    int myQuality
-        //)
-        //{
-        //    //token.ThrowIfCancellationRequested();
-
-
-        //    int fileCount = images.Length + 1;
-        //    int counter = 1;
-
-        //    myProgressBar.Invoke(new Action(() =>
-        //    {
-        //        myProgressBar.Value = 0;
-        //        myProgressBar.Maximum = fileCount;
-        //    }));
-
-
-        //    string args = "-y -f image2pipe -r " + myFPS +
-        //                  " -i pipe:0 -c:v " + myCodec + " -preset " + myEncodingSpeed + " -crf " 
-        //                  + myQuality +" -pix_fmt yuv420p " + outputPath;
-
-        //    var process = new Process
-        //    {
-        //        StartInfo =
-        //        {
-        //            FileName = ffmpegPath,
-        //            Arguments = args,
-        //            RedirectStandardInput = true,  // Redirect standard input
-        //            RedirectStandardOutput = true, // Redirect standard output
-        //            RedirectStandardError = true,  // Redirect standard error
-        //            UseShellExecute = false,       // Required for redirection
-        //            CreateNoWindow = true          // Optional: Run without creating a window
-        //        }
-        //    };
-
-        //    process.Start();
-
-        //    Stream ffmpegInput = process.StandardInput.BaseStream;
-
-        //    // Write images to FFmpeg's standard input
-        //    using (ffmpegInput)
-        //    {
-        //        foreach (string imageFile in images)
-        //        {
-        //           if (token.IsCancellationRequested)
-        //           {
-        //               Reset();
-        //              return;
-        //           }
-
-        //            counter++;
-
-        //                using (var bitmap = new Bitmap(imageFile))
-        //                {
-        //                    bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
-        //                }
-
-        //                //invoke to prevent cross threading
-        //                myRichTextBox.Invoke(new Action(() =>
-        //                {
-        //                    myRichTextBox.AppendText("Adding:" + imageFile + "\r");
-        //                    myRichTextBox.ScrollToCaret();
-        //                }));
-
-        //                myProgressBar.Invoke(new Action(() => { myProgressBar.Value = counter; }));
-        //            }
-
-        //    }
-
-        //    //Close the process
-        //   // process.Close();
-
-        //    // Wait for FFmpeg to finish
-        //    if (!process.HasExited) process.WaitForExit();
-
-
-
-        //    if (process.ExitCode == 0)
-        //    {
-        //        MsgBox.Show($"Video created successfully: {outputPath}", "Information", MessageBoxButtons.OK,
-        //            MessageBoxIcon.Error);
-        //    }
-        //    else
-        //    {
-        //        string error = process.StandardError.ReadToEnd();
-        //        MsgBox.Show($"FFmpeg error: {error}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-
-
-        //    //  token.ThrowIfCancellationRequested();
-        //}
-
-        private void RunFFmpeg(
-    string[] images,
-    int myFPS,
-    string ffmpegPath,
-    string outputPath,
-    CancellationToken token,
-    RichTextBox myRichTextBox,
-    ProgressBar myProgressBar,
-    string myCodec,
-    string myEncodingSpeed,
-    int myQuality
-)
+        private void RunFFmpeg(string[] images, int myFPS, string ffmpegPath, string outputPath, 
+            CancellationToken token, RichTextBox myRichTextBox, ProgressBar myProgressBar, string myCodec, 
+            string myEncodingSpeed, int myQuality)
         {
             int fileCount = images.Length;
             int counter = 0;
@@ -524,7 +414,6 @@ namespace myTimelapseMovieMaker
                         return;
                     }
 
-
                     counter++;
 
                     using (var bitmap = new Bitmap(imageFile))
@@ -535,10 +424,10 @@ namespace myTimelapseMovieMaker
                     // prevent cross threading
                     Invoke((MethodInvoker)delegate
                     {
-                       myRichTextBox.AppendText("Adding:" + imageFile + "\r");
-                       myRichTextBox.ScrollToCaret();
+                        myRichTextBox.AppendText("Adding:" + imageFile + "\r");
+                        myRichTextBox.ScrollToCaret();
 
-                       myProgressBar.Value = counter;
+                        myProgressBar.Value = counter;
                     });
                 }
             }
