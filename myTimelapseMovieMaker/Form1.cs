@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -290,10 +292,37 @@ namespace myTimelapseMovieMaker
 
         private void btn_reset_Click(object sender, EventArgs e)
         {
-            lst_Images.Items.Clear();
-            lbl_Folder.Text = "";
-            lbl_Status.Text = "";
-            picbx_Preview.Image = null;
+            Reset();
+        }
+
+        private void Reset()
+        {
+            if (InvokeRequired)
+            {
+                Invoke((MethodInvoker) delegate
+                {
+                    lst_Images.Items.Clear();
+                    lbl_Folder.Text = "";
+                    lbl_Status.Text = "";
+                    lbl_movie_time.Text = "";
+                    picbx_Preview.Image = null;
+                    trkbr_Quality.Value = -1;
+                    progressBar.Value = 0;
+                    rchtxbx_output.Clear();
+                    MsgBox.Show("Operation aborted", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                });
+            }
+            else
+            {
+                lst_Images.Items.Clear();
+                lbl_Folder.Text = "";
+                lbl_Status.Text = "";
+                lbl_movie_time.Text = "";
+                picbx_Preview.Image = null;
+                trkbr_Quality.Value = -1;
+                progressBar.Value = 0;
+                rchtxbx_output.Clear();
+            }
         }
 
         private void btn_rename_files_Click(object sender, EventArgs e)
@@ -316,7 +345,7 @@ namespace myTimelapseMovieMaker
             int myQuality
         )
         {
-            token.ThrowIfCancellationRequested();
+            //token.ThrowIfCancellationRequested();
 
             
             int fileCount = images.Length + 1;
@@ -330,7 +359,8 @@ namespace myTimelapseMovieMaker
 
            
             string args = "-y -f image2pipe -r " + myFPS +
-                          " -i pipe:0 -c:v " + myCodec + " -preset " + myEncodingSpeed + " -crf " + myQuality +" -pix_fmt yuv420p " + outputPath;
+                          " -i pipe:0 -c:v " + myCodec + " -preset " + myEncodingSpeed + " -crf " 
+                          + myQuality +" -pix_fmt yuv420p " + outputPath;
 
             var process = new Process
             {
@@ -357,9 +387,13 @@ namespace myTimelapseMovieMaker
             {
                 foreach (string imageFile in images)
                 {
-                    while (!token.IsCancellationRequested) // do unless aborted
-                    {
-                        counter++;
+                   if (token.IsCancellationRequested)
+                   {
+                       Reset();
+                      return;
+                   }
+
+                    counter++;
 
                         using (var bitmap = new Bitmap(imageFile))
                         {
@@ -375,7 +409,7 @@ namespace myTimelapseMovieMaker
 
                         myProgressBar.Invoke(new Action(() => { myProgressBar.Value = counter; }));
                     }
-                }
+               
             }
 
             //Close the process
