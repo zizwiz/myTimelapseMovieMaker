@@ -143,17 +143,18 @@ namespace myTimelapseMovieMaker
         }
 
 
-        private void UpdateProgress(int value, string statusText)
+        private void UpdateProgress(int progress, ProgressBar myProgressbar, RichTextBox myRichTextBox)
         {
-            if (InvokeRequired)
+            if (myProgressbar.InvokeRequired)
             {
-                Invoke(new Action<int, string>(UpdateProgress), value, statusText);
+                myProgressbar.Invoke(new Action(() => UpdateProgress(progress, myProgressbar, myRichTextBox)));
                 return;
             }
 
-            progressBar.Value = Math.Min(100, Math.Max(0, value));
-            lbl_Status.Text = statusText;
+            myProgressbar.Value = Math.Max(0, Math.Min(100, progress));
 
+            myRichTextBox.AppendText($"Progress: {progress}%\r\n");
+            myRichTextBox.ScrollToCaret();
         }
 
         private void btn_ChooseFolder_Click(object sender, EventArgs e)
@@ -350,18 +351,12 @@ namespace myTimelapseMovieMaker
 
         }
 
-        private void RunFFmpeg(string[] images, int myFPS, string ffmpegPath, string outputPath, 
-            CancellationToken token, RichTextBox myRichTextBox, ProgressBar myProgressBar, string myCodec, 
+        private void RunFFmpeg(string[] images, int myFPS, string ffmpegPath, string outputPath,
+            CancellationToken token, RichTextBox myRichTextBox, ProgressBar myProgressBar, string myCodec,
             string myEncodingSpeed, int myQuality)
         {
-            int fileCount = images.Length;
-            int counter = 0;
-
-            myProgressBar.Invoke(new Action(() =>
-            {
-                myProgressBar.Value = 0;
-                myProgressBar.Maximum = fileCount;
-            }));
+            double totalSeconds = images.Length / (double)myFPS;
+            TimeSpan totalDuration = TimeSpan.FromSeconds(totalSeconds);
 
             string args =
                 "-y -f image2pipe -r " + myFPS +
@@ -373,31 +368,37 @@ namespace myTimelapseMovieMaker
             var process = new Process
             {
                 StartInfo =
-                            {
-                                FileName = ffmpegPath,
-                                Arguments = args,
-                                RedirectStandardInput = true,
-                                RedirectStandardError = true,
-                                UseShellExecute = false,
-                                CreateNoWindow = true
-                            },
-                EnableRaisingEvents = true
+                {
+                    FileName = ffmpegPath,
+                    Arguments = args,
+                    RedirectStandardInput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
             };
 
             process.Start();
 
-            // Start reading stderr asynchronously to prevent deadlock
+            // Read stderr asynchronously for progress
             Task stderrTask = Task.Run(() =>
             {
                 string line;
                 while ((line = process.StandardError.ReadLine()) != null)
                 {
-                    // Optional: show FFmpeg progress
-                    Invoke((MethodInvoker)delegate
+                    if (token.IsCancellationRequested)
+                        return;
+
+                    if (line.Contains("time="))
                     {
-                        myRichTextBox.AppendText(line + "\r\n");
-                        myRichTextBox.ScrollToCaret();
-                    });
+                        string timeString = ExtractTime(line);
+                        
+                        if (TimeSpan.TryParse(timeString, out TimeSpan current))
+                        {
+                            int progress = (int)(current.TotalSeconds / totalDuration.TotalSeconds * 100);
+                            UpdateProgress(progress, myProgressBar, myRichTextBox);
+                        }
+                    }
                 }
             });
 
@@ -406,54 +407,53 @@ namespace myTimelapseMovieMaker
             {
                 foreach (string imageFile in images)
                 {
-                    //if abort was clicked then stop and reset
                     if (token.IsCancellationRequested)
                     {
                         try { process.Kill(); } catch { }
                         Reset();
                         return;
                     }
-
-                    counter++;
-
+                    
                     using (var bitmap = new Bitmap(imageFile))
                     {
                         bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
                     }
 
                     // prevent cross threading
-                    Invoke((MethodInvoker)delegate
+                    Invoke((MethodInvoker) delegate
                     {
                         myRichTextBox.AppendText("Adding:" + imageFile + "\r");
                         myRichTextBox.ScrollToCaret();
-
-                        myProgressBar.Value = counter;
                     });
                 }
             }
 
-            // stdin is now closed → FFmpeg will finish encoding
-
+            // Wait for FFmpeg to finish
             process.WaitForExit();
-            stderrTask.Wait(); // ensure stderr is fully read
+            stderrTask.Wait();
 
             if (process.ExitCode == 0)
             {
                 Invoke((MethodInvoker)delegate
-               {
-                   MsgBox.Show($"Video created successfully:\n{outputPath}",
-                       "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-               });
+                { 
+                    progressBar.Value = 100;
+                    rchtxbx_output.AppendText($"Progress: 100%\r\n");
+                    rchtxbx_output.ScrollToCaret();
+                    MsgBox.Show($"Video created successfully:\n{outputPath}",
+                        "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                });
             }
             else
             {
                 Invoke((MethodInvoker)delegate
-               {
-                   MsgBox.Show("FFmpeg failed. Check log for details.",
-                       "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-               });
+                {
+                    progressBar.Value = 0;
+                    MsgBox.Show("FFmpeg failed. Check log for details.",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                });
             }
         }
+
 
         private string ExtractTime(string line)
         {
