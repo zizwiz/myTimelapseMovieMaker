@@ -62,6 +62,7 @@ namespace myTimelapseMovieMaker
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.trkbr_Quality = new System.Windows.Forms.TrackBar();
+            this.chkbx_downscale = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trkbr_Quality)).BeginInit();
@@ -326,7 +327,7 @@ namespace myTimelapseMovieMaker
             // lbl_codec
             // 
             this.lbl_codec.AutoSize = true;
-            this.lbl_codec.Location = new System.Drawing.Point(458, 355);
+            this.lbl_codec.Location = new System.Drawing.Point(429, 355);
             this.lbl_codec.Name = "lbl_codec";
             this.lbl_codec.Size = new System.Drawing.Size(55, 20);
             this.lbl_codec.TabIndex = 26;
@@ -338,7 +339,7 @@ namespace myTimelapseMovieMaker
             this.cmbobx_codec.Items.AddRange(new object[] {
             "libx264",
             "libx265"});
-            this.cmbobx_codec.Location = new System.Drawing.Point(519, 352);
+            this.cmbobx_codec.Location = new System.Drawing.Point(490, 352);
             this.cmbobx_codec.Name = "cmbobx_codec";
             this.cmbobx_codec.Size = new System.Drawing.Size(121, 28);
             this.cmbobx_codec.TabIndex = 27;
@@ -350,7 +351,7 @@ namespace myTimelapseMovieMaker
             "slow",
             "medium",
             "fast"});
-            this.cmbobx_encoding_speed.Location = new System.Drawing.Point(776, 352);
+            this.cmbobx_encoding_speed.Location = new System.Drawing.Point(747, 352);
             this.cmbobx_encoding_speed.Name = "cmbobx_encoding_speed";
             this.cmbobx_encoding_speed.Size = new System.Drawing.Size(121, 28);
             this.cmbobx_encoding_speed.TabIndex = 29;
@@ -358,7 +359,7 @@ namespace myTimelapseMovieMaker
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(646, 355);
+            this.label1.Location = new System.Drawing.Point(617, 355);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(124, 20);
             this.label1.TabIndex = 28;
@@ -367,7 +368,7 @@ namespace myTimelapseMovieMaker
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(458, 400);
+            this.label2.Location = new System.Drawing.Point(429, 400);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(57, 20);
             this.label2.TabIndex = 30;
@@ -375,7 +376,7 @@ namespace myTimelapseMovieMaker
             // 
             // trkbr_Quality
             // 
-            this.trkbr_Quality.Location = new System.Drawing.Point(521, 386);
+            this.trkbr_Quality.Location = new System.Drawing.Point(492, 386);
             this.trkbr_Quality.Maximum = 51;
             this.trkbr_Quality.Minimum = -1;
             this.trkbr_Quality.Name = "trkbr_Quality";
@@ -383,11 +384,24 @@ namespace myTimelapseMovieMaker
             this.trkbr_Quality.TabIndex = 31;
             this.trkbr_Quality.Value = -1;
             // 
+            // chkbx_downscale
+            // 
+            this.chkbx_downscale.AutoSize = true;
+            this.chkbx_downscale.Checked = true;
+            this.chkbx_downscale.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkbx_downscale.Location = new System.Drawing.Point(884, 356);
+            this.chkbx_downscale.Name = "chkbx_downscale";
+            this.chkbx_downscale.Size = new System.Drawing.Size(180, 24);
+            this.chkbx_downscale.TabIndex = 33;
+            this.chkbx_downscale.Text = "Downscale to 1080p";
+            this.chkbx_downscale.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1099, 676);
+            this.Controls.Add(this.chkbx_downscale);
             this.Controls.Add(this.trkbr_Quality);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.cmbobx_encoding_speed);
@@ -467,6 +481,7 @@ namespace myTimelapseMovieMaker
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TrackBar trkbr_Quality;
+        private System.Windows.Forms.CheckBox chkbx_downscale;
     }
 }
 

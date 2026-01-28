@@ -153,8 +153,11 @@ namespace myTimelapseMovieMaker
 
             myProgressbar.Value = Math.Max(0, Math.Min(100, progress));
 
-            myRichTextBox.AppendText($"Progress: {progress}%\r\n");
-            myRichTextBox.ScrollToCaret();
+            Invoke((MethodInvoker) delegate
+            {
+                myRichTextBox.AppendText($"Progress: {progress}%\r\n");
+                myRichTextBox.ScrollToCaret();
+            });
         }
 
         private void btn_ChooseFolder_Click(object sender, EventArgs e)
@@ -198,6 +201,7 @@ namespace myTimelapseMovieMaker
             string Codec = cmbobx_codec.Text;
             string EncodingSpeed = cmbobx_encoding_speed.Text;
             int Quality = trkbr_Quality.Value;
+            bool Downscale = chkbx_downscale.Checked;
 
             // Ask where to save the video
             if (saveFileDialog.ShowDialog() != DialogResult.OK)
@@ -238,7 +242,7 @@ namespace myTimelapseMovieMaker
                                       totalDuration.Seconds + "s";
 
                 await Task.Run(() => RunFFmpeg(images, fps, ffmpegPath, outputPath, cts.Token, rchtxbx_output,
-                    progressBar, Codec, EncodingSpeed, Quality));
+                    progressBar, Codec, EncodingSpeed, Quality, Downscale));
                 lbl_Status.Text = "Completed";
             }
             catch (OperationCanceledException)
@@ -353,17 +357,42 @@ namespace myTimelapseMovieMaker
 
         private void RunFFmpeg(string[] images, int myFPS, string ffmpegPath, string outputPath,
             CancellationToken token, RichTextBox myRichTextBox, ProgressBar myProgressBar, string myCodec,
-            string myEncodingSpeed, int myQuality)
+            string myEncodingSpeed, int myQuality, bool myDownscaleTo1080p)
         {
             double totalSeconds = images.Length / (double)myFPS;
             TimeSpan totalDuration = TimeSpan.FromSeconds(totalSeconds);
 
+            string listFile = Path.Combine(Path.GetTempPath(), "ffmpeg_list.txt");
+
+            using (var sw = new StreamWriter(listFile))
+            {
+                sw.WriteLine("ffconcat version 1.0");
+
+                double frameDuration = 1.0 / myFPS;
+
+                for (int i = 0; i < images.Length; i++)
+                {
+                    string img = images[i].Replace("\\", "/");
+                    sw.WriteLine($"file '{img}'");
+                    sw.WriteLine($"duration {frameDuration}");
+                }
+
+                // FFmpeg requires repeating the last frame
+                string last = images[images.Length - 1].Replace("\\", "/");
+                sw.WriteLine($"file '{last}'");
+                sw.WriteLine($"duration {frameDuration}");
+            }
+
+
+            // Optional downscale filter
+            string scaleFilter = myDownscaleTo1080p ? "-vf scale=1920:1080" : "";
+
+            // FFmpeg command
             string args =
-                "-y -f image2pipe -r " + myFPS +
-                " -i pipe:0 -c:v " + myCodec +
-                " -preset " + myEncodingSpeed +
-                " -crf " + myQuality +
-                " -pix_fmt yuv420p \"" + outputPath + "\"";
+                $"-y -f concat -safe 0 -i \"{listFile}\" " +
+                $"{scaleFilter} -r {myFPS} " +
+                $"-c:v {myCodec} -preset {myEncodingSpeed} -crf {myQuality} -pix_fmt yuv420p " +
+                $"\"{outputPath}\"";
 
             var process = new Process
             {
@@ -371,7 +400,6 @@ namespace myTimelapseMovieMaker
                 {
                     FileName = ffmpegPath,
                     Arguments = args,
-                    RedirectStandardInput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -389,10 +417,17 @@ namespace myTimelapseMovieMaker
                     if (token.IsCancellationRequested)
                         return;
 
+                    // Log FFmpeg output
+                    //myRichTextBox.Invoke(new Action(() =>
+                    //{
+                    //    myRichTextBox.AppendText(line + "\r\n");
+                    //    myRichTextBox.ScrollToCaret();
+                    //}));
+
                     if (line.Contains("time="))
                     {
                         string timeString = ExtractTime(line);
-                        
+
                         if (TimeSpan.TryParse(timeString, out TimeSpan current))
                         {
                             int progress = (int)(current.TotalSeconds / totalDuration.TotalSeconds * 100);
@@ -402,32 +437,6 @@ namespace myTimelapseMovieMaker
                 }
             });
 
-            // Write images to FFmpeg stdin
-            using (Stream ffmpegInput = process.StandardInput.BaseStream)
-            {
-                foreach (string imageFile in images)
-                {
-                    if (token.IsCancellationRequested)
-                    {
-                        try { process.Kill(); } catch { }
-                        Reset();
-                        return;
-                    }
-                    
-                    using (var bitmap = new Bitmap(imageFile))
-                    {
-                        bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
-                    }
-
-                    // prevent cross threading
-                    Invoke((MethodInvoker) delegate
-                    {
-                        myRichTextBox.AppendText("Adding:" + imageFile + "\r");
-                        myRichTextBox.ScrollToCaret();
-                    });
-                }
-            }
-
             // Wait for FFmpeg to finish
             process.WaitForExit();
             stderrTask.Wait();
@@ -435,7 +444,7 @@ namespace myTimelapseMovieMaker
             if (process.ExitCode == 0)
             {
                 Invoke((MethodInvoker)delegate
-                { 
+                {
                     progressBar.Value = 100;
                     rchtxbx_output.AppendText($"Progress: 100%\r\n");
                     rchtxbx_output.ScrollToCaret();
