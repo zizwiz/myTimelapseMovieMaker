@@ -192,11 +192,29 @@ namespace myTimelapseMovieMaker
         {
             var images = lst_Images.Items.Cast<string>().ToArray();
             string ffmpegPath = Path.Combine(Application.StartupPath, "ffmpeg", "ffmpeg.exe");
-            string outputPath = @"F:\snapshots\ffmpeg_timelapse.mp4";
+            //string outputPath = @"F:\snapshots\ffmpeg_timelapse.mp4";
             int fps = (int)numUpDn_Fps.Value;
             string Codec = cmbobx_codec.Text;
             string EncodingSpeed = cmbobx_encoding_speed.Text;
             int Quality = trkbr_Quality.Value;
+
+            // Ask where to save the video
+            if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            string outputPath = saveFileDialog.FileName;
+            if (string.IsNullOrWhiteSpace(outputPath))
+                return;
+
+            // Confirm overwrite
+            if (File.Exists(outputPath))
+            {
+                var result = MessageBox.Show("File already exists. Overwrite?", "Confirm",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result != DialogResult.Yes)
+                    return;
+            }
+
 
             btn_Start.Enabled = false;
             btn_Abort.Enabled = true;
@@ -218,7 +236,7 @@ namespace myTimelapseMovieMaker
                 lbl_movie_time.Text = "Movie duration = " + totalDuration.Hours + "h " + totalDuration.Minutes + "m " +
                                       totalDuration.Seconds + "s";
 
-                await Task.Run(() => RunFFmpeg(images, fps, ffmpegPath, outputPath, cts.Token, rchtxbx_output, 
+                await Task.Run(() => RunFFmpeg(images, fps, ffmpegPath, outputPath, cts.Token, rchtxbx_output,
                     progressBar, Codec, EncodingSpeed, Quality));
                 lbl_Status.Text = "Completed";
             }
@@ -299,18 +317,18 @@ namespace myTimelapseMovieMaker
         {
             if (InvokeRequired)
             {
-                Invoke((MethodInvoker) delegate
-                {
-                    lst_Images.Items.Clear();
-                    lbl_Folder.Text = "";
-                    lbl_Status.Text = "";
-                    lbl_movie_time.Text = "";
-                    picbx_Preview.Image = null;
-                    trkbr_Quality.Value = -1;
-                    progressBar.Value = 0;
-                    rchtxbx_output.Clear();
-                    MsgBox.Show("Operation aborted", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                });
+                Invoke((MethodInvoker)delegate
+               {
+                   lst_Images.Items.Clear();
+                   lbl_Folder.Text = "";
+                   lbl_Status.Text = "";
+                   lbl_movie_time.Text = "";
+                   picbx_Preview.Image = null;
+                   trkbr_Quality.Value = -1;
+                   progressBar.Value = 0;
+                   rchtxbx_output.Clear();
+                   MsgBox.Show("Operation aborted", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+               });
             }
             else
             {
@@ -332,24 +350,122 @@ namespace myTimelapseMovieMaker
 
         }
 
-        private void RunFFmpeg(
-            string[] images,
-            int myFPS,
-            string ffmpegPath,
-            string outputPath,
-            CancellationToken token,
-            RichTextBox myRichTextBox,
-            ProgressBar myProgressBar, 
-            string myCodec,
-            string myEncodingSpeed,
-            int myQuality
-        )
-        {
-            //token.ThrowIfCancellationRequested();
+        //private void RunFFmpeg(
+        //    string[] images,
+        //    int myFPS,
+        //    string ffmpegPath,
+        //    string outputPath,
+        //    CancellationToken token,
+        //    RichTextBox myRichTextBox,
+        //    ProgressBar myProgressBar, 
+        //    string myCodec,
+        //    string myEncodingSpeed,
+        //    int myQuality
+        //)
+        //{
+        //    //token.ThrowIfCancellationRequested();
 
-            
-            int fileCount = images.Length + 1;
-            int counter = 1;
+
+        //    int fileCount = images.Length + 1;
+        //    int counter = 1;
+
+        //    myProgressBar.Invoke(new Action(() =>
+        //    {
+        //        myProgressBar.Value = 0;
+        //        myProgressBar.Maximum = fileCount;
+        //    }));
+
+
+        //    string args = "-y -f image2pipe -r " + myFPS +
+        //                  " -i pipe:0 -c:v " + myCodec + " -preset " + myEncodingSpeed + " -crf " 
+        //                  + myQuality +" -pix_fmt yuv420p " + outputPath;
+
+        //    var process = new Process
+        //    {
+        //        StartInfo =
+        //        {
+        //            FileName = ffmpegPath,
+        //            Arguments = args,
+        //            RedirectStandardInput = true,  // Redirect standard input
+        //            RedirectStandardOutput = true, // Redirect standard output
+        //            RedirectStandardError = true,  // Redirect standard error
+        //            UseShellExecute = false,       // Required for redirection
+        //            CreateNoWindow = true          // Optional: Run without creating a window
+        //        }
+        //    };
+
+        //    process.Start();
+
+        //    Stream ffmpegInput = process.StandardInput.BaseStream;
+
+        //    // Write images to FFmpeg's standard input
+        //    using (ffmpegInput)
+        //    {
+        //        foreach (string imageFile in images)
+        //        {
+        //           if (token.IsCancellationRequested)
+        //           {
+        //               Reset();
+        //              return;
+        //           }
+
+        //            counter++;
+
+        //                using (var bitmap = new Bitmap(imageFile))
+        //                {
+        //                    bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
+        //                }
+
+        //                //invoke to prevent cross threading
+        //                myRichTextBox.Invoke(new Action(() =>
+        //                {
+        //                    myRichTextBox.AppendText("Adding:" + imageFile + "\r");
+        //                    myRichTextBox.ScrollToCaret();
+        //                }));
+
+        //                myProgressBar.Invoke(new Action(() => { myProgressBar.Value = counter; }));
+        //            }
+
+        //    }
+
+        //    //Close the process
+        //   // process.Close();
+
+        //    // Wait for FFmpeg to finish
+        //    if (!process.HasExited) process.WaitForExit();
+
+
+
+        //    if (process.ExitCode == 0)
+        //    {
+        //        MsgBox.Show($"Video created successfully: {outputPath}", "Information", MessageBoxButtons.OK,
+        //            MessageBoxIcon.Error);
+        //    }
+        //    else
+        //    {
+        //        string error = process.StandardError.ReadToEnd();
+        //        MsgBox.Show($"FFmpeg error: {error}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+
+
+        //    //  token.ThrowIfCancellationRequested();
+        //}
+
+        private void RunFFmpeg(
+    string[] images,
+    int myFPS,
+    string ffmpegPath,
+    string outputPath,
+    CancellationToken token,
+    RichTextBox myRichTextBox,
+    ProgressBar myProgressBar,
+    string myCodec,
+    string myEncodingSpeed,
+    int myQuality
+)
+        {
+            int fileCount = images.Length;
+            int counter = 0;
 
             myProgressBar.Invoke(new Action(() =>
             {
@@ -357,65 +473,97 @@ namespace myTimelapseMovieMaker
                 myProgressBar.Maximum = fileCount;
             }));
 
-           
-            string args = "-y -f image2pipe -r " + myFPS +
-                          " -i pipe:0 -c:v " + myCodec + " -preset " + myEncodingSpeed + " -crf " 
-                          + myQuality +" -pix_fmt yuv420p " + outputPath;
+            string args =
+                "-y -f image2pipe -r " + myFPS +
+                " -i pipe:0 -c:v " + myCodec +
+                " -preset " + myEncodingSpeed +
+                " -crf " + myQuality +
+                " -pix_fmt yuv420p \"" + outputPath + "\"";
 
             var process = new Process
             {
                 StartInfo =
-                {
-                    FileName = ffmpegPath,
-                    Arguments = args,
-                    RedirectStandardInput = true,  // Redirect standard input
-                    RedirectStandardOutput = true, // Redirect standard output
-                    RedirectStandardError = true,  // Redirect standard error
-                    UseShellExecute = false,       // Required for redirection
-                    CreateNoWindow = true          // Optional: Run without creating a window
-                }
+                            {
+                                FileName = ffmpegPath,
+                                Arguments = args,
+                                RedirectStandardInput = true,
+                                RedirectStandardError = true,
+                                UseShellExecute = false,
+                                CreateNoWindow = true
+                            },
+                EnableRaisingEvents = true
             };
 
             process.Start();
 
-            Stream ffmpegInput = process.StandardInput.BaseStream;
+            // Start reading stderr asynchronously to prevent deadlock
+            Task stderrTask = Task.Run(() =>
+            {
+                string line;
+                while ((line = process.StandardError.ReadLine()) != null)
+                {
+                    // Optional: show FFmpeg progress
+                    Invoke((MethodInvoker)delegate
+                    {
+                        myRichTextBox.AppendText(line + "\r\n");
+                        myRichTextBox.ScrollToCaret();
+                    });
+                }
+            });
 
-            // Write images to FFmpeg's standard input
-            // using (var ffmpegInput = process.StandardInput.BaseStream)
-
-            using (ffmpegInput)
+            // Write images to FFmpeg stdin
+            using (Stream ffmpegInput = process.StandardInput.BaseStream)
             {
                 foreach (string imageFile in images)
                 {
-                   if (token.IsCancellationRequested)
-                   {
-                       Reset();
-                      return;
-                   }
+                    //if abort was clicked then stop and reset
+                    if (token.IsCancellationRequested)
+                    {
+                        try { process.Kill(); } catch { }
+                        Reset();
+                        return;
+                    }
+
 
                     counter++;
 
-                        using (var bitmap = new Bitmap(imageFile))
-                        {
-                            bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
-                        }
-
-                        //invoke to prevent cross threading
-                        myRichTextBox.Invoke(new Action(() =>
-                        {
-                            myRichTextBox.AppendText("Adding:" + imageFile + "\r");
-                            myRichTextBox.ScrollToCaret();
-                        }));
-
-                        myProgressBar.Invoke(new Action(() => { myProgressBar.Value = counter; }));
+                    using (var bitmap = new Bitmap(imageFile))
+                    {
+                        bitmap.Save(ffmpegInput, ImageFormat.Jpeg);
                     }
-               
+
+                    // prevent cross threading
+                    Invoke((MethodInvoker)delegate
+                    {
+                       myRichTextBox.AppendText("Adding:" + imageFile + "\r");
+                       myRichTextBox.ScrollToCaret();
+
+                       myProgressBar.Value = counter;
+                    });
+                }
             }
 
-            //Close the process
-            process.Close();
+            // stdin is now closed → FFmpeg will finish encoding
 
-          //  token.ThrowIfCancellationRequested();
+            process.WaitForExit();
+            stderrTask.Wait(); // ensure stderr is fully read
+
+            if (process.ExitCode == 0)
+            {
+                Invoke((MethodInvoker)delegate
+               {
+                   MsgBox.Show($"Video created successfully:\n{outputPath}",
+                       "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+               });
+            }
+            else
+            {
+                Invoke((MethodInvoker)delegate
+               {
+                   MsgBox.Show("FFmpeg failed. Check log for details.",
+                       "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               });
+            }
         }
 
         private string ExtractTime(string line)
