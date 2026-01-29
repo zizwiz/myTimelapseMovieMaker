@@ -66,9 +66,12 @@ namespace myTimelapseMovieMaker
             this.label5 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.lbl_quality_value = new System.Windows.Forms.Label();
+            this.grpbx_rename_files = new System.Windows.Forms.GroupBox();
+            this.chkbx_rename_files = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trkbr_Quality)).BeginInit();
+            this.grpbx_rename_files.SuspendLayout();
             this.SuspendLayout();
             // 
             // btn_ChooseFolder
@@ -234,17 +237,17 @@ namespace myTimelapseMovieMaker
             // 
             // btn_rename_files
             // 
-            this.btn_rename_files.Location = new System.Drawing.Point(44, 450);
+            this.btn_rename_files.Location = new System.Drawing.Point(21, 37);
             this.btn_rename_files.Name = "btn_rename_files";
             this.btn_rename_files.Size = new System.Drawing.Size(114, 30);
             this.btn_rename_files.TabIndex = 15;
-            this.btn_rename_files.Text = "Rename files";
+            this.btn_rename_files.Text = "Rename";
             this.btn_rename_files.UseVisualStyleBackColor = true;
             this.btn_rename_files.Click += new System.EventHandler(this.btn_rename_files_Click);
             // 
             // txtbx_rename_counter
             // 
-            this.txtbx_rename_counter.Location = new System.Drawing.Point(342, 452);
+            this.txtbx_rename_counter.Location = new System.Drawing.Point(301, 8);
             this.txtbx_rename_counter.Name = "txtbx_rename_counter";
             this.txtbx_rename_counter.Size = new System.Drawing.Size(86, 26);
             this.txtbx_rename_counter.TabIndex = 16;
@@ -253,7 +256,7 @@ namespace myTimelapseMovieMaker
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(182, 455);
+            this.label12.Location = new System.Drawing.Point(141, 11);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(154, 20);
             this.label12.TabIndex = 17;
@@ -262,7 +265,7 @@ namespace myTimelapseMovieMaker
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(434, 455);
+            this.label3.Location = new System.Drawing.Point(393, 11);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(159, 20);
             this.label3.TabIndex = 18;
@@ -270,7 +273,7 @@ namespace myTimelapseMovieMaker
             // 
             // txtWildcard
             // 
-            this.txtWildcard.Location = new System.Drawing.Point(599, 452);
+            this.txtWildcard.Location = new System.Drawing.Point(558, 8);
             this.txtWildcard.Name = "txtWildcard";
             this.txtWildcard.Size = new System.Drawing.Size(76, 26);
             this.txtWildcard.TabIndex = 19;
@@ -279,7 +282,7 @@ namespace myTimelapseMovieMaker
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(681, 455);
+            this.label4.Location = new System.Drawing.Point(640, 11);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(145, 20);
             this.label4.TabIndex = 20;
@@ -287,7 +290,7 @@ namespace myTimelapseMovieMaker
             // 
             // txtNewNameFormat
             // 
-            this.txtNewNameFormat.Location = new System.Drawing.Point(832, 452);
+            this.txtNewNameFormat.Location = new System.Drawing.Point(791, 8);
             this.txtNewNameFormat.Name = "txtNewNameFormat";
             this.txtNewNameFormat.Size = new System.Drawing.Size(132, 26);
             this.txtNewNameFormat.TabIndex = 21;
@@ -295,7 +298,7 @@ namespace myTimelapseMovieMaker
             // lbl_renamed_file_path
             // 
             this.lbl_renamed_file_path.AutoSize = true;
-            this.lbl_renamed_file_path.Location = new System.Drawing.Point(337, 491);
+            this.lbl_renamed_file_path.Location = new System.Drawing.Point(296, 47);
             this.lbl_renamed_file_path.Name = "lbl_renamed_file_path";
             this.lbl_renamed_file_path.Size = new System.Drawing.Size(29, 20);
             this.lbl_renamed_file_path.TabIndex = 22;
@@ -304,7 +307,7 @@ namespace myTimelapseMovieMaker
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(182, 491);
+            this.label6.Location = new System.Drawing.Point(141, 47);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(149, 20);
             this.label6.TabIndex = 23;
@@ -426,11 +429,42 @@ namespace myTimelapseMovieMaker
             this.lbl_quality_value.TabIndex = 36;
             this.lbl_quality_value.Text = ".....";
             // 
+            // grpbx_rename_files
+            // 
+            this.grpbx_rename_files.Controls.Add(this.label6);
+            this.grpbx_rename_files.Controls.Add(this.lbl_renamed_file_path);
+            this.grpbx_rename_files.Controls.Add(this.txtNewNameFormat);
+            this.grpbx_rename_files.Controls.Add(this.label4);
+            this.grpbx_rename_files.Controls.Add(this.txtWildcard);
+            this.grpbx_rename_files.Controls.Add(this.label3);
+            this.grpbx_rename_files.Controls.Add(this.label12);
+            this.grpbx_rename_files.Controls.Add(this.txtbx_rename_counter);
+            this.grpbx_rename_files.Controls.Add(this.btn_rename_files);
+            this.grpbx_rename_files.Location = new System.Drawing.Point(16, 444);
+            this.grpbx_rename_files.Name = "grpbx_rename_files";
+            this.grpbx_rename_files.Size = new System.Drawing.Size(931, 75);
+            this.grpbx_rename_files.TabIndex = 37;
+            this.grpbx_rename_files.TabStop = false;
+            this.grpbx_rename_files.Text = "Rename Files";
+            // 
+            // chkbx_rename_files
+            // 
+            this.chkbx_rename_files.AutoSize = true;
+            this.chkbx_rename_files.Location = new System.Drawing.Point(954, 481);
+            this.chkbx_rename_files.Name = "chkbx_rename_files";
+            this.chkbx_rename_files.Size = new System.Drawing.Size(133, 24);
+            this.chkbx_rename_files.TabIndex = 38;
+            this.chkbx_rename_files.Text = "Rename Files";
+            this.chkbx_rename_files.UseVisualStyleBackColor = true;
+            this.chkbx_rename_files.CheckedChanged += new System.EventHandler(this.chkbx_rename_files_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1099, 676);
+            this.Controls.Add(this.chkbx_rename_files);
+            this.Controls.Add(this.grpbx_rename_files);
             this.Controls.Add(this.lbl_quality_value);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label5);
@@ -443,15 +477,6 @@ namespace myTimelapseMovieMaker
             this.Controls.Add(this.lbl_codec);
             this.Controls.Add(this.lbl_movie_time);
             this.Controls.Add(this.rchtxbx_output);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.lbl_renamed_file_path);
-            this.Controls.Add(this.txtNewNameFormat);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.txtWildcard);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label12);
-            this.Controls.Add(this.txtbx_rename_counter);
-            this.Controls.Add(this.btn_rename_files);
             this.Controls.Add(this.btn_reset);
             this.Controls.Add(this.btn_close);
             this.Controls.Add(this.lbl_Status);
@@ -474,6 +499,8 @@ namespace myTimelapseMovieMaker
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trkbr_Quality)).EndInit();
+            this.grpbx_rename_files.ResumeLayout(false);
+            this.grpbx_rename_files.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -518,6 +545,8 @@ namespace myTimelapseMovieMaker
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label lbl_quality_value;
+        private System.Windows.Forms.GroupBox grpbx_rename_files;
+        private System.Windows.Forms.CheckBox chkbx_rename_files;
     }
 }
 

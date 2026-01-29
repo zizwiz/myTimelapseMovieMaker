@@ -26,6 +26,8 @@ namespace myTimelapseMovieMaker
             cmbobx_codec.SelectedIndex = 1;
             cmbobx_encoding_speed.SelectedIndex = 0;
 
+            grpbx_rename_files.Visible = false;
+
             lbl_quality_value.Text = trkbr_Quality.Value.ToString();
         }
        
@@ -480,6 +482,11 @@ namespace myTimelapseMovieMaker
         private void trkbr_Quality_Scroll(object sender, EventArgs e)
         {
            lbl_quality_value.Text = trkbr_Quality.Value.ToString();
+        }
+
+        private void chkbx_rename_files_CheckedChanged(object sender, EventArgs e)
+        {
+           grpbx_rename_files.Visible = chkbx_rename_files.Checked ? true : false;
         }
     }
 
