@@ -63,6 +63,9 @@ namespace myTimelapseMovieMaker
             this.label2 = new System.Windows.Forms.Label();
             this.trkbr_Quality = new System.Windows.Forms.TrackBar();
             this.chkbx_downscale = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.lbl_quality_value = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trkbr_Quality)).BeginInit();
@@ -113,7 +116,7 @@ namespace myTimelapseMovieMaker
             this.numUpDn_Fps.Size = new System.Drawing.Size(120, 26);
             this.numUpDn_Fps.TabIndex = 3;
             this.numUpDn_Fps.Value = new decimal(new int[] {
-            5,
+            14,
             0,
             0,
             0});
@@ -378,11 +381,11 @@ namespace myTimelapseMovieMaker
             // 
             this.trkbr_Quality.Location = new System.Drawing.Point(492, 386);
             this.trkbr_Quality.Maximum = 51;
-            this.trkbr_Quality.Minimum = -1;
             this.trkbr_Quality.Name = "trkbr_Quality";
             this.trkbr_Quality.Size = new System.Drawing.Size(538, 69);
             this.trkbr_Quality.TabIndex = 31;
-            this.trkbr_Quality.Value = -1;
+            this.trkbr_Quality.Value = 18;
+            this.trkbr_Quality.Scroll += new System.EventHandler(this.trkbr_Quality_Scroll);
             // 
             // chkbx_downscale
             // 
@@ -396,11 +399,41 @@ namespace myTimelapseMovieMaker
             this.chkbx_downscale.Text = "Downscale to 1080p";
             this.chkbx_downscale.UseVisualStyleBackColor = true;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(488, 425);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(42, 20);
+            this.label5.TabIndex = 34;
+            this.label5.Text = "Best";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(988, 425);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(51, 20);
+            this.label7.TabIndex = 35;
+            this.label7.Text = "Worst";
+            // 
+            // lbl_quality_value
+            // 
+            this.lbl_quality_value.AutoSize = true;
+            this.lbl_quality_value.Location = new System.Drawing.Point(714, 425);
+            this.lbl_quality_value.Name = "lbl_quality_value";
+            this.lbl_quality_value.Size = new System.Drawing.Size(29, 20);
+            this.lbl_quality_value.TabIndex = 36;
+            this.lbl_quality_value.Text = ".....";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1099, 676);
+            this.Controls.Add(this.lbl_quality_value);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.chkbx_downscale);
             this.Controls.Add(this.trkbr_Quality);
             this.Controls.Add(this.label2);
@@ -482,6 +515,9 @@ namespace myTimelapseMovieMaker
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TrackBar trkbr_Quality;
         private System.Windows.Forms.CheckBox chkbx_downscale;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lbl_quality_value;
     }
 }
 

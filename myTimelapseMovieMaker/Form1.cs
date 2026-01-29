@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -16,16 +13,22 @@ namespace myTimelapseMovieMaker
 {
     public partial class Form1 : Form
     {
+        private string currentFolder = string.Empty;
+        private CancellationTokenSource cts;
+      
         public Form1()
         {
             InitializeComponent();
         }
 
-        // State
-        private string currentFolder = string.Empty;
-        private CancellationTokenSource cts;
-        private bool isRendering = false;
-        //private Process ffmpegProcess;
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            cmbobx_codec.SelectedIndex = 1;
+            cmbobx_encoding_speed.SelectedIndex = 0;
+
+            lbl_quality_value.Text = trkbr_Quality.Value.ToString();
+        }
+       
 
         private void LoadImagesFromFolder(string folder)
         {
@@ -162,13 +165,6 @@ namespace myTimelapseMovieMaker
 
         private void btn_ChooseFolder_Click(object sender, EventArgs e)
         {
-            if (isRendering)
-            {
-                MessageBox.Show("Cannot change folder while rendering.", "Busy",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
             using (var fbd = new FolderBrowserDialog())
             {
                 fbd.Description = "Select folder containing timelapse images";
@@ -362,7 +358,11 @@ namespace myTimelapseMovieMaker
             double totalSeconds = images.Length / (double)myFPS;
             TimeSpan totalDuration = TimeSpan.FromSeconds(totalSeconds);
 
-            string listFile = Path.Combine(Path.GetTempPath(), "ffmpeg_list.txt");
+
+            // Create txt file list of files to add to movie
+            // string listFile = Path.Combine(Path.GetTempPath(), "ffmpeg_list.txt");
+
+            string listFile = Path.Combine(Application.StartupPath, "ffmpeg_list.txt");
 
             using (var sw = new StreamWriter(listFile))
             {
@@ -477,10 +477,9 @@ namespace myTimelapseMovieMaker
             return part.Trim();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void trkbr_Quality_Scroll(object sender, EventArgs e)
         {
-            cmbobx_codec.SelectedIndex = 1;
-            cmbobx_encoding_speed.SelectedIndex = 2;
+           lbl_quality_value.Text = trkbr_Quality.Value.ToString();
         }
     }
 
