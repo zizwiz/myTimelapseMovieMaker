@@ -15,7 +15,7 @@ namespace myTimelapseMovieMaker
     {
         private string currentFolder = string.Empty;
         private CancellationTokenSource cts;
-      
+
         public Form1()
         {
             InitializeComponent();
@@ -30,7 +30,7 @@ namespace myTimelapseMovieMaker
 
             lbl_quality_value.Text = trkbr_Quality.Value.ToString();
         }
-       
+
 
         private void LoadImagesFromFolder(string folder)
         {
@@ -71,6 +71,12 @@ namespace myTimelapseMovieMaker
                 {
                     MessageBox.Show("No .jpg files found in the selected folder.", "Info",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    //We have an image so suggest a CRF value and file size
+                    SuggestCRF();
+                    EstimateFileSize();
                 }
             }
             catch (Exception ex)
@@ -158,11 +164,11 @@ namespace myTimelapseMovieMaker
 
             myProgressbar.Value = Math.Max(0, Math.Min(100, progress));
 
-            Invoke((MethodInvoker) delegate
-            {
-                myRichTextBox.AppendText($"Progress: {progress}%\r\n");
-                myRichTextBox.ScrollToCaret();
-            });
+            Invoke((MethodInvoker)delegate
+           {
+               myRichTextBox.AppendText($"Progress: {progress}%\r\n");
+               myRichTextBox.ScrollToCaret();
+           });
         }
 
         private void btn_ChooseFolder_Click(object sender, EventArgs e)
@@ -327,9 +333,11 @@ namespace myTimelapseMovieMaker
                    lbl_Status.Text = "";
                    lbl_movie_time.Text = "";
                    picbx_Preview.Image = null;
-                   trkbr_Quality.Value = -1;
+                   trkbr_Quality.Value = 0;
+                   lbl_quality_value.Text = "0";
                    progressBar.Value = 0;
                    rchtxbx_output.Clear();
+                   lbl_estimated_file_size.Text = "";
                    MsgBox.Show("Operation aborted", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                });
             }
@@ -340,9 +348,11 @@ namespace myTimelapseMovieMaker
                 lbl_Status.Text = "";
                 lbl_movie_time.Text = "";
                 picbx_Preview.Image = null;
-                trkbr_Quality.Value = -1;
+                trkbr_Quality.Value = 24;
+                lbl_quality_value.Text = "24";
                 progressBar.Value = 0;
                 rchtxbx_output.Clear();
+                lbl_estimated_file_size.Text = "";
             }
         }
 
@@ -481,13 +491,194 @@ namespace myTimelapseMovieMaker
 
         private void trkbr_Quality_Scroll(object sender, EventArgs e)
         {
-           lbl_quality_value.Text = trkbr_Quality.Value.ToString();
+            lbl_quality_value.Text = trkbr_Quality.Value.ToString();
+            if (lst_Images.Items.Count != 0)
+            {
+                EstimateFileSize();
+            }
         }
 
         private void chkbx_rename_files_CheckedChanged(object sender, EventArgs e)
         {
-           grpbx_rename_files.Visible = chkbx_rename_files.Checked ? true : false;
+            grpbx_rename_files.Visible = chkbx_rename_files.Checked ? true : false;
+        }
+
+
+        public void SuggestCRF()
+        {
+            //Suggest best quality setting. User can change if they want
+            var images = lst_Images.Items.Cast<string>().ToArray();
+            var bitmap = new Bitmap(images[0]);
+
+            int crfValue = 0;
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+            string codec = cmbobx_codec.Text;
+            bool downscale = chkbx_downscale.Checked;
+
+
+            // If downscaling to 1080p, we can push CRF slightly higher
+            bool is4K = width >= 3000;
+            bool is1080p = width >= 1800 && width < 3000;
+
+            if (codec.Contains("265"))
+            {
+                crfValue = 24;                          // fallback
+                if (is4K && !downscale) crfValue = 20;  // 4K HEVC
+                if (is4K && downscale) crfValue = 22;   // 4K → 1080p
+                if (is1080p) crfValue = 22;             // native 1080p
+
+            }
+            else if (codec.Contains("264"))
+            {
+                crfValue = 22;
+                if (is4K && !downscale) crfValue = 18;
+                if (is4K && downscale) crfValue = 20;
+                if (is1080p) crfValue = 20;
+
+            }
+
+            trkbr_Quality.Value = crfValue;
+            lbl_quality_value.Text = crfValue.ToString();
+
+            GC.Collect();
+        }
+
+        public static double EstimateBitrateMbps(int crf, string codec, bool downscale, string preset)
+        {
+            double baseRate;
+
+            if (codec.Contains("265"))
+            {
+                if (crf <= 18) baseRate = 14;
+                else if (crf <= 20) baseRate = 10;
+                else if (crf <= 22) baseRate = 7;
+                else if (crf <= 24) baseRate = 4.5;
+                else if (crf <= 26) baseRate = 2.8;
+                else if (crf <= 28) baseRate = 1.8;
+                else baseRate = 1.0;
+            }
+            else // H.264
+            {
+                if (crf <= 18) baseRate = 20;
+                else if (crf <= 20) baseRate = 14;
+                else if (crf <= 22) baseRate = 10;
+                else if (crf <= 24) baseRate = 7;
+                else if (crf <= 26) baseRate = 5;
+                else if (crf <= 28) baseRate = 3;
+                else baseRate = 2;
+            }
+
+            // Apply preset multiplier
+            double multiplier = PresetMultiplier(preset);
+
+            return baseRate * multiplier;
+        }
+
+        public static double PresetMultiplier(string preset)
+        {
+            switch (preset.ToLower())
+            {
+
+                case "ultrafast": return 3.0;
+                case "superfast": return 2.2;
+                case "veryfast": return 1.7;
+                case "faster": return 1.5;
+                case "fast": return 1.3;
+                case "medium": return 1.0;
+                case "slow": return 0.85;
+                case "slower": return 0.75;
+                case "veryslow": return 0.65;
+                default: return 1.0;
+            }
+        }
+
+        //public static double PresetMultiplier(string preset, string codec)
+        //{
+        //    preset = preset.ToLower();
+
+        //    if (codec.Contains("265"))
+        //    {
+        //        // Based on your real-world results
+        //        return preset switch
+        //        {
+        //            "fast" => 1.0,
+        //            "medium" => 1.2,
+        //            "slow" => 1.4,
+        //            _ => 1.2
+        //        };
+        //    }
+        //    else
+        //    {
+        //        // Typical x264 behaviour (opposite)
+        //        return preset switch
+        //        {
+        //            "ultrafast" => 3.0,
+        //            "superfast" => 2.2,
+        //            "veryfast" => 1.7,
+        //            "faster" => 1.5,
+        //            "fast" => 1.3,
+        //            "medium" => 1.0,
+        //            "slow" => 0.85,
+        //            "slower" => 0.75,
+        //            "veryslow" => 0.65,
+        //            _ => 1.0
+        //        };
+        //    }
+        //}
+
+        public void EstimateFileSize()
+        {
+            //Suggest best quality setting. User can change if they want
+            var images = lst_Images.Items.Cast<string>().ToArray();
+            var bitmap = new Bitmap(images[0]);
+
+            string codec = cmbobx_codec.Text;
+            bool downscale = chkbx_downscale.Checked;
+            int frameCount = images.Length;
+            int fps = Int32.Parse(numUpDn_Fps.Value.ToString());
+            int crf = trkbr_Quality.Value;
+            string preset = cmbobx_encoding_speed.Text;
+            
+            double duration = frameCount / (double)fps;
+            double bitrate = EstimateBitrateMbps(crf, codec, downscale, preset);
+            lbl_estimated_file_size.Text = "Estimated movie size = " + Math.Round((bitrate * duration) / 8.0, 2)+ "Mb";
+
+            GC.Collect();
+        }
+
+        private void cmbobx_codec_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lst_Images.Items.Count != 0)
+            {
+                SuggestCRF();
+                EstimateFileSize();
+            }
+        }
+
+        private void chkbx_downscale_CheckedChanged(object sender, EventArgs e)
+        {
+            if (lst_Images.Items.Count != 0)
+            {
+                SuggestCRF();
+                EstimateFileSize();
+            }
+        }
+
+        private void numUpDn_Fps_ValueChanged(object sender, EventArgs e)
+        {
+            if (lst_Images.Items.Count != 0)
+            {
+                EstimateFileSize();
+            }
+        }
+
+        private void cmbobx_encoding_speed_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (lst_Images.Items.Count != 0)
+            {
+                EstimateFileSize();
+            }
         }
     }
-
 }
