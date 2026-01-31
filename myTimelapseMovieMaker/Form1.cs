@@ -76,7 +76,6 @@ namespace myTimelapseMovieMaker
                 {
                     //We have an image so suggest a CRF value and file size
                     SuggestCRF();
-                    EstimateFileSize();
                 }
             }
             catch (Exception ex)
@@ -337,7 +336,6 @@ namespace myTimelapseMovieMaker
                    lbl_quality_value.Text = "0";
                    progressBar.Value = 0;
                    rchtxbx_output.Clear();
-                   lbl_estimated_file_size.Text = "";
                    MsgBox.Show("Operation aborted", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                });
             }
@@ -352,7 +350,6 @@ namespace myTimelapseMovieMaker
                 lbl_quality_value.Text = "24";
                 progressBar.Value = 0;
                 rchtxbx_output.Clear();
-                lbl_estimated_file_size.Text = "";
             }
         }
 
@@ -492,10 +489,6 @@ namespace myTimelapseMovieMaker
         private void trkbr_Quality_Scroll(object sender, EventArgs e)
         {
             lbl_quality_value.Text = trkbr_Quality.Value.ToString();
-            if (lst_Images.Items.Count != 0)
-            {
-                EstimateFileSize();
-            }
         }
 
         private void chkbx_rename_files_CheckedChanged(object sender, EventArgs e)
@@ -543,98 +536,13 @@ namespace myTimelapseMovieMaker
 
             GC.Collect();
         }
-
-        public static double EstimateBitrateMbps(int crf, string codec, bool downscale, string preset)
-        {
-            double baseRate;
-
-            if (codec.Contains("265"))
-            {
-                if (crf <= 18) baseRate = 14;
-                else if (crf <= 20) baseRate = 10;
-                else if (crf <= 22) baseRate = 7;
-                else if (crf <= 24) baseRate = 4.5;
-                else if (crf <= 26) baseRate = 2.8;
-                else if (crf <= 28) baseRate = 1.8;
-                else baseRate = 1.0;
-            }
-            else // H.264
-            {
-                if (crf <= 18) baseRate = 20;
-                else if (crf <= 20) baseRate = 14;
-                else if (crf <= 22) baseRate = 10;
-                else if (crf <= 24) baseRate = 7;
-                else if (crf <= 26) baseRate = 5;
-                else if (crf <= 28) baseRate = 3;
-                else baseRate = 2;
-            }
-
-            // Apply preset multiplier
-            double multiplier = PresetMultiplier(preset, codec);
-
-            return baseRate * multiplier;
-        }
-
-        public static double PresetMultiplier(string preset, string codec)
-        {
-            preset = preset.ToLower();
-
-            if (codec.Contains("265"))
-            {
-                switch (preset)
-                {
-                    case "fast": return 1.0;
-                    case "medium": return 1.2;
-                    case "slow": return 1.4;
-                    default: return 1.2;
-                }
-            }
-            else
-            {
-                switch (preset)
-                {
-
-                    case "ultrafast": return 3.0;
-                    case "superfast": return 2.2;
-                    case "veryfast": return 1.7;
-                    case "faster": return 1.5;
-                    case "fast": return 1.3;
-                    case "medium": return 1.0;
-                    case "slow": return 0.85;
-                    case "slower": return 0.75;
-                    case "veryslow": return 0.65;
-                    default: return 1.0;
-                }
-            }
-        }
-
         
-        public void EstimateFileSize()
-        {
-            //Suggest best quality setting. User can change if they want
-            var images = lst_Images.Items.Cast<string>().ToArray();
-            var bitmap = new Bitmap(images[0]);
-
-            string codec = cmbobx_codec.Text;
-            bool downscale = chkbx_downscale.Checked;
-            int frameCount = images.Length;
-            int fps = Int32.Parse(numUpDn_Fps.Value.ToString());
-            int crf = trkbr_Quality.Value;
-            string preset = cmbobx_encoding_speed.Text;
-            
-            double duration = frameCount / (double)fps;
-            double bitrate = EstimateBitrateMbps(crf, codec, downscale, preset);
-            lbl_estimated_file_size.Text = "Estimated movie size = " + Math.Round((bitrate * duration) / 8.0, 2)+ "Mb";
-
-            GC.Collect();
-        }
-
+       
         private void cmbobx_codec_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (lst_Images.Items.Count != 0)
             {
                 SuggestCRF();
-                EstimateFileSize();
             }
         }
 
@@ -643,23 +551,6 @@ namespace myTimelapseMovieMaker
             if (lst_Images.Items.Count != 0)
             {
                 SuggestCRF();
-                EstimateFileSize();
-            }
-        }
-
-        private void numUpDn_Fps_ValueChanged(object sender, EventArgs e)
-        {
-            if (lst_Images.Items.Count != 0)
-            {
-                EstimateFileSize();
-            }
-        }
-
-        private void cmbobx_encoding_speed_SelectedValueChanged(object sender, EventArgs e)
-        {
-            if (lst_Images.Items.Count != 0)
-            {
-                EstimateFileSize();
             }
         }
     }

@@ -68,7 +68,6 @@ namespace myTimelapseMovieMaker
             this.lbl_quality_value = new System.Windows.Forms.Label();
             this.grpbx_rename_files = new System.Windows.Forms.GroupBox();
             this.chkbx_rename_files = new System.Windows.Forms.CheckBox();
-            this.lbl_estimated_file_size = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDn_Fps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picbx_Preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trkbr_Quality)).BeginInit();
@@ -124,7 +123,6 @@ namespace myTimelapseMovieMaker
             0,
             0,
             0});
-            this.numUpDn_Fps.ValueChanged += new System.EventHandler(this.numUpDn_Fps_ValueChanged);
             // 
             // btn_Start
             // 
@@ -364,7 +362,6 @@ namespace myTimelapseMovieMaker
             this.cmbobx_encoding_speed.Name = "cmbobx_encoding_speed";
             this.cmbobx_encoding_speed.Size = new System.Drawing.Size(121, 28);
             this.cmbobx_encoding_speed.TabIndex = 29;
-            this.cmbobx_encoding_speed.SelectedValueChanged += new System.EventHandler(this.cmbobx_encoding_speed_SelectedValueChanged);
             // 
             // label1
             // 
@@ -463,21 +460,11 @@ namespace myTimelapseMovieMaker
             this.chkbx_rename_files.UseVisualStyleBackColor = true;
             this.chkbx_rename_files.CheckedChanged += new System.EventHandler(this.chkbx_rename_files_CheckedChanged);
             // 
-            // lbl_estimated_file_size
-            // 
-            this.lbl_estimated_file_size.AutoSize = true;
-            this.lbl_estimated_file_size.Location = new System.Drawing.Point(12, 600);
-            this.lbl_estimated_file_size.Name = "lbl_estimated_file_size";
-            this.lbl_estimated_file_size.Size = new System.Drawing.Size(42, 20);
-            this.lbl_estimated_file_size.TabIndex = 39;
-            this.lbl_estimated_file_size.Text = "...0...";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1099, 676);
-            this.Controls.Add(this.lbl_estimated_file_size);
             this.Controls.Add(this.chkbx_rename_files);
             this.Controls.Add(this.grpbx_rename_files);
             this.Controls.Add(this.lbl_quality_value);
@@ -562,7 +549,6 @@ namespace myTimelapseMovieMaker
         private System.Windows.Forms.Label lbl_quality_value;
         private System.Windows.Forms.GroupBox grpbx_rename_files;
         private System.Windows.Forms.CheckBox chkbx_rename_files;
-        private System.Windows.Forms.Label lbl_estimated_file_size;
     }
 }
 
