@@ -570,63 +570,45 @@ namespace myTimelapseMovieMaker
             }
 
             // Apply preset multiplier
-            double multiplier = PresetMultiplier(preset);
+            double multiplier = PresetMultiplier(preset, codec);
 
             return baseRate * multiplier;
         }
 
-        public static double PresetMultiplier(string preset)
+        public static double PresetMultiplier(string preset, string codec)
         {
-            switch (preset.ToLower())
-            {
+            preset = preset.ToLower();
 
-                case "ultrafast": return 3.0;
-                case "superfast": return 2.2;
-                case "veryfast": return 1.7;
-                case "faster": return 1.5;
-                case "fast": return 1.3;
-                case "medium": return 1.0;
-                case "slow": return 0.85;
-                case "slower": return 0.75;
-                case "veryslow": return 0.65;
-                default: return 1.0;
+            if (codec.Contains("265"))
+            {
+                switch (preset)
+                {
+                    case "fast": return 1.0;
+                    case "medium": return 1.2;
+                    case "slow": return 1.4;
+                    default: return 1.2;
+                }
+            }
+            else
+            {
+                switch (preset)
+                {
+
+                    case "ultrafast": return 3.0;
+                    case "superfast": return 2.2;
+                    case "veryfast": return 1.7;
+                    case "faster": return 1.5;
+                    case "fast": return 1.3;
+                    case "medium": return 1.0;
+                    case "slow": return 0.85;
+                    case "slower": return 0.75;
+                    case "veryslow": return 0.65;
+                    default: return 1.0;
+                }
             }
         }
 
-        //public static double PresetMultiplier(string preset, string codec)
-        //{
-        //    preset = preset.ToLower();
-
-        //    if (codec.Contains("265"))
-        //    {
-        //        // Based on your real-world results
-        //        return preset switch
-        //        {
-        //            "fast" => 1.0,
-        //            "medium" => 1.2,
-        //            "slow" => 1.4,
-        //            _ => 1.2
-        //        };
-        //    }
-        //    else
-        //    {
-        //        // Typical x264 behaviour (opposite)
-        //        return preset switch
-        //        {
-        //            "ultrafast" => 3.0,
-        //            "superfast" => 2.2,
-        //            "veryfast" => 1.7,
-        //            "faster" => 1.5,
-        //            "fast" => 1.3,
-        //            "medium" => 1.0,
-        //            "slow" => 0.85,
-        //            "slower" => 0.75,
-        //            "veryslow" => 0.65,
-        //            _ => 1.0
-        //        };
-        //    }
-        //}
-
+        
         public void EstimateFileSize()
         {
             //Suggest best quality setting. User can change if they want
