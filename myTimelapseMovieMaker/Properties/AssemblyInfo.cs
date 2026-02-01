@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("myTimelapseMovieMaker")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Make a movie from timelapse images")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Intelligent Engineers")]
 [assembly: AssemblyProduct("myTimelapseMovieMaker")]
 [assembly: AssemblyCopyright("Copyright ©  2026")]
 [assembly: AssemblyTrademark("")]

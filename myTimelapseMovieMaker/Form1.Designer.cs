@@ -29,6 +29,7 @@ namespace myTimelapseMovieMaker
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btn_ChooseFolder = new System.Windows.Forms.Button();
             this.lbl_Folder = new System.Windows.Forms.Label();
             this.lbl_Fps = new System.Windows.Forms.Label();
@@ -494,6 +495,7 @@ namespace myTimelapseMovieMaker
             this.Controls.Add(this.lbl_Fps);
             this.Controls.Add(this.lbl_Folder);
             this.Controls.Add(this.btn_ChooseFolder);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Timelapse Movie Maker";
