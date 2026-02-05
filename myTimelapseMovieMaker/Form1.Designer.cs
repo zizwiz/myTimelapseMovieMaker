@@ -148,6 +148,7 @@ namespace myTimelapseMovieMaker
             // lst_Images
             // 
             this.lst_Images.FormattingEnabled = true;
+            this.lst_Images.HorizontalScrollbar = true;
             this.lst_Images.ItemHeight = 20;
             this.lst_Images.Location = new System.Drawing.Point(49, 76);
             this.lst_Images.Name = "lst_Images";

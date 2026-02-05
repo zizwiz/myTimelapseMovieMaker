@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -29,6 +29,8 @@ namespace myTimelapseMovieMaker
             grpbx_rename_files.Visible = false;
 
             lbl_quality_value.Text = trkbr_Quality.Value.ToString();
+
+            Text += " : v" + Assembly.GetExecutingAssembly().GetName().Version; // put in the version number
         }
 
 
